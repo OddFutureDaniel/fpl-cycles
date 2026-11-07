@@ -4,6 +4,7 @@ import { cycleStandings } from "@/lib/scoring";
 import type { Cycle } from "@/lib/types";
 import { listForfeits, usingMemoryStore } from "@/lib/forfeits";
 import { useFixture } from "@/lib/league";
+import { readVoter } from "@/lib/voter";
 import { ForfeitBoard } from "./forfeits/ForfeitBoard";
 import { Card, GapCell, gwRange, RankCell, ScoreCell, StatusBadge, Th } from "./ui";
 
@@ -16,7 +17,7 @@ export async function CycleTable({ data, cycle }: { data: LeagueData; cycle: Cyc
   // Bottom of the cycle does the forfeit (joint if tied)
   const bottomRank = Math.max(...rows.map((r) => r.rank));
   const losers = status === "upcoming" ? [] : rows.filter((r) => r.rank === bottomRank && rows.length > 1);
-  const forfeits = await listForfeits(cycle.number).catch(() => []);
+  const forfeits = await listForfeits(cycle.number, await readVoter()).catch(() => []);
 
   return (
     <div className="space-y-4">

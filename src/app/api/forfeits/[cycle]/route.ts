@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { addForfeit, listForfeits, MAX_FORFEIT_LENGTH } from "@/lib/forfeits";
 import { cycleState } from "@/lib/league";
+import { readVoter } from "@/lib/voter";
 
 type Ctx = { params: Promise<{ cycle: string }> };
 
@@ -8,7 +9,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   const cycle = Number((await params).cycle);
   const state = await cycleState(cycle);
   if (!state) return NextResponse.json({ error: "Unknown cycle" }, { status: 404 });
-  return NextResponse.json({ open: state !== "complete", items: await listForfeits(cycle) });
+  return NextResponse.json({ open: state !== "complete", items: await listForfeits(cycle, await readVoter()) });
 }
 
 export async function POST(req: Request, { params }: Ctx) {

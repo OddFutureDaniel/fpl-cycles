@@ -58,7 +58,7 @@ If a captain has 0 minutes while every one of his matches has kicked off and his
 
 ## Forfeit vote
 
-Every cycle page has a board: anyone can suggest forfeits and upvote as many times as they like (quick taps are batched into one request). Voting closes when the cycle's last gameweek is final; the top suggestion becomes the forfeit for whoever finished bottom (joint if tied), shown on the cycle page, in Records and in the round-up. There's no login or moderation, so anyone with the link can post.
+Every cycle page has a board: anyone can suggest as many forfeits as they like and upvote each suggestion once (tap again to take the vote back). Votes are tied to an anonymous cookie per browser and checked on the server, so repeat taps or replayed requests don't count twice; someone could still vote again from a second device or after clearing cookies. Voting closes when the cycle's last gameweek is final; the top suggestion becomes the forfeit for whoever finished bottom (joint if tied), shown on the cycle page, in Records and in the round-up. There's no login or moderation, so anyone with the link can post.
 
 **Storage setup (Vercel):** Project → Storage → add **Upstash for Redis** (free tier) and connect it to the project. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`, which the app reads automatically (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` also work). Locally without them, suggestions are kept in memory and vanish on restart. Keys are namespaced by league and `FPL_SEASON` (default `2026-27`), so next season starts clean.
 
