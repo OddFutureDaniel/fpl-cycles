@@ -10,7 +10,8 @@ import { RoundupButton } from "@/components/RoundupButton";
 import { headers } from "next/headers";
 import { cycleStatus } from "@/lib/cycles";
 import { forfeitLeaders } from "@/lib/forfeits";
-import { LEAGUE_ID, loadLeague, type LeagueData } from "@/lib/league";
+import { applyLiveScores, LEAGUE_ID, loadLeague, loadLive, type LeagueData } from "@/lib/league";
+import { AutoRefresh } from "@/components/live/AutoRefresh";
 import { buildRoundup } from "@/lib/roundup";
 
 // Rendered per request; the FPL fetches underneath are cached for 5 minutes
@@ -34,6 +35,13 @@ export default async function Page({ searchParams }: { searchParams: Search }) {
         </p>
       </main>
     );
+  }
+
+  // Unconfirmed gameweek: every tab uses live scores and refreshes itself
+  const gwOpen = !!data.currentGw && !data.currentGw.final;
+  if (gwOpen) {
+    const live = await loadLive(data).catch((err) => (console.error(err), null));
+    if (live) applyLiveScores(data, live);
   }
 
   // Default to Live while a gameweek is being played, otherwise the latest cycle
@@ -72,6 +80,7 @@ export default async function Page({ searchParams }: { searchParams: Search }) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
+      <AutoRefresh active={gwOpen} />
       <header className="mb-6 flex flex-wrap items-end justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-pitch">Four-gameweek mini-league</p>

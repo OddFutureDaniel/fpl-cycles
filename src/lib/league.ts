@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { buildCycles } from "./cycles";
 import { getAllPicks, getAllTransfers, getBootstrap, getFixtures, getHistories, getLeague, getLive } from "./fpl/client";
 import * as fx from "./fpl/fixture";
@@ -67,10 +68,11 @@ export async function loadLeague() {
 export type LeagueData = Awaited<ReturnType<typeof loadLeague>>;
 
 /**
- * Live gameweek: only fetched for the Live view, as it costs two extra
+ * Live gameweek. Wrapped in React's cache() so the page, Live and H2H views
+ * share one computation per request., as it costs two extra
  * requests per manager (picks and transfers).
  */
-export async function loadLive(data: LeagueData) {
+export const loadLive = cache(async (data: LeagueData) => {
   const gw = data.currentGw?.id;
   if (!gw) return null;
   const ids = data.managers.map((m) => m.entry);
@@ -108,7 +110,24 @@ export async function loadLive(data: LeagueData) {
     ticker: buildTicker(fixtures, data.bootstrap, ctx),
     table,
   };
-}
+});
 
 export type LiveData = NonNullable<Awaited<ReturnType<typeof loadLive>>>;
 export type LiveRow = LiveData["table"][number];
+
+/**
+ * While the current gameweek isn't confirmed, swap each manager's score for
+ * it with the live engine's, so cycle, overall, records, charts and round-up
+ * move in step with the Live tab instead of waiting for FPL's slower history.
+ */
+export function applyLiveScores(data: LeagueData, live: LiveData) {
+  const byEntry = new Map(live.table.map((r) => [r.entry, r]));
+  for (const m of data.managers) {
+    const r = byEntry.get(m.entry);
+    if (!r) continue;
+    m.scores = {
+      ...m.scores,
+      [live.gw]: { gw: live.gw, net: r.net, gross: r.points, hits: r.hits, chip: r.chip ?? undefined },
+    };
+  }
+}

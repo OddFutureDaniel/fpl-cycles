@@ -83,7 +83,7 @@ export const getBootstrap = unstable_cache(
     };
   },
   ["fpl-bootstrap"],
-  { revalidate: 300 },
+  { revalidate: 120 },
 );
 
 /** Walks every standings page (50 per page) so large leagues are complete. */
@@ -103,7 +103,7 @@ export async function getLeague(leagueId: number) {
 }
 
 export const getHistories = (entryIds: number[]) =>
-  mapPool(entryIds, CONCURRENCY, (id) => getJson<FplEntryHistory>(`/entry/${id}/history/`, 300));
+  mapPool(entryIds, CONCURRENCY, (id) => getJson<FplEntryHistory>(`/entry/${id}/history/`, 120));
 
 // Live data: short cache while matches are on
 export const getLive = (gw: number) => getJson<FplLive>(`/event/${gw}/live/`, 60);

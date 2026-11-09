@@ -1,5 +1,4 @@
 import { loadLive, type LeagueData } from "@/lib/league";
-import { AutoRefresh } from "./AutoRefresh";
 import { LiveTable } from "./LiveTable";
 import { Ticker } from "./Ticker";
 
@@ -15,7 +14,6 @@ export async function LiveView({ data }: { data: LeagueData }) {
 
   return (
     <div className="space-y-5">
-      <AutoRefresh active={live.anyLive} />
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-2xl font-bold tracking-tight">Gameweek {live.gw}</h2>
         {live.anyLive ? (
